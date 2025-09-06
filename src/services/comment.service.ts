@@ -46,12 +46,12 @@ export const updateCommentById = (
     body: comment.body,
   };
   db.comments.splice(commentToUpdateIndex, 1, updatedPost as db.Comment);
-  return db.comments;
+  return db.comments[commentToUpdateIndex];
 };
 export const deleteCommentById = (commentId: number) => {
   const postToUpdateIndex = db.comments.findIndex(
     (comment) => comment.id === commentId
   );
-  db.comments.splice(postToUpdateIndex, 1);
-  return db.posts;
+  const deletedComment = db.comments.splice(postToUpdateIndex, 1);
+  return deletedComment;
 };

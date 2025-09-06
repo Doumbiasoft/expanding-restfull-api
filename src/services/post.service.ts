@@ -29,10 +29,10 @@ export const updatePostById = (postId: number, post: Partial<db.Post>) => {
     content: post.content ? post.content : postToUpdate?.content,
   };
   db.posts.splice(postToUpdateIndex, 1, updatedPost as db.Post);
-  return db.posts;
+  return db.posts[postToUpdateIndex];
 };
 export const deletePostById = (postId: number) => {
   const postToUpdateIndex = db.posts.findIndex((post) => post.id === postId);
-  db.posts.splice(postToUpdateIndex, 1);
-  return db.posts;
+  const deletedPost = db.posts.splice(postToUpdateIndex, 1);
+  return deletedPost;
 };
