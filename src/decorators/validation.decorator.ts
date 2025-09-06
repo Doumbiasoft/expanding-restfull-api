@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import { sendError } from "../utils/response";
+import { HttpStatus } from "../types/httpStatus";
 
 export interface ValidationRule {
   field: string;
@@ -109,7 +110,11 @@ function createValidationMiddleware(
     }
 
     if (errors.length > 0) {
-      return sendError(res, `Validation failed: ${errors.join(", ")}`, 400);
+      return sendError(
+        res,
+        `Validation failed: ${errors.join(", ")}`,
+        HttpStatus.BAD_REQUEST
+      );
     }
 
     next();
