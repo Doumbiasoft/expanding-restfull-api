@@ -2,7 +2,6 @@ import "reflect-metadata";
 import app from "./app";
 import { ENV } from "./config/env";
 import "colors";
-import { logger } from "./utils/logger";
 
 app.listen(ENV.PORT, () => {
   console.log(`\nExpanding RESTFull API`.bgGreen.white.bold);

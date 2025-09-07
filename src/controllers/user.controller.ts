@@ -1,10 +1,15 @@
-import "reflect-metadata";
 import { Request, Response } from "express";
 import { Users } from "../config/database";
 import { sendResponse, sendError } from "../utils/response";
 import { Controller } from "../decorators/controller.decorator";
 import { Get, Post, Delete, Patch } from "../decorators/route.decorator";
 import { LogRequest } from "../decorators/utility.decorator";
+import { HttpStatus } from "../types/httpStatus";
+import {
+  ValidateBody,
+  ValidateParams,
+  ValidationPatterns,
+} from "../decorators/validation.decorator";
 import {
   findAllUsers,
   findUserById,
@@ -13,12 +18,6 @@ import {
   updateUserById,
   deleteUserById,
 } from "../services/user.service";
-import { HttpStatus } from "../types/httpStatus";
-import {
-  ValidateBody,
-  ValidateParams,
-  ValidationPatterns,
-} from "../decorators/validation.decorator";
 
 @Controller("UserController")
 class UserController {
@@ -62,7 +61,7 @@ class UserController {
     ],
   })
   @LogRequest()
-  async addUsers(req: Request, res: Response) {
+  async addUser(req: Request, res: Response) {
     const exitUser = findUser(req.body.username);
     if (exitUser)
       return sendError(
@@ -78,14 +77,17 @@ class UserController {
     description: "Retrieve a specific user by id in the system",
     tags: ["Users"],
   })
+  @ValidateParams({
+    rules: [
+      {
+        field: "id",
+        required: true,
+        type: "string",
+      },
+    ],
+  })
   @LogRequest()
   async getUserById(req: Request, res: Response) {
-    if (!req.params.id)
-      return sendError(
-        res,
-        "The parameter user id is missing",
-        HttpStatus.BAD_REQUEST
-      );
     const userId = Number(req.params.id);
     const user = findUserById(userId);
     if (!user) return sendError(res, "User not found", HttpStatus.NOT_FOUND);
@@ -170,7 +172,7 @@ class UserController {
 const userController = new UserController();
 export const getUsers = userController.getUsers;
 export const getUserById = userController.getUserById;
-export const addUsers = userController.addUsers;
+export const addUser = userController.addUser;
 export const updateUser = userController.updateUser;
 export const deleteUser = userController.deleteUser;
 
