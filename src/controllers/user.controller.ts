@@ -45,15 +45,6 @@ class UserController {
           email: "john.doe@example.com",
         },
       },
-      {
-        summary: "Create developer user",
-        description: "Example request to create a developer user",
-        value: {
-          name: "Jane Smith",
-          username: "janedev",
-          email: "jane.smith@devcompany.com",
-        },
-      },
     ],
   })
   @ValidateBody({
