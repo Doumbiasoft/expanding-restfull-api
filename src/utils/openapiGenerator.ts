@@ -222,7 +222,9 @@ export class OpenAPIGenerator {
 
       // Add paths with proper prefixing
       for (const [path, methods] of Object.entries(controllerSpec.paths)) {
-        const fullPath = `${basePath}${routePrefix}${path}`;
+        // Normalize path to avoid trailing slashes when route path is "/"
+        const normalizedPath = path === "/" ? "" : path;
+        const fullPath = `${basePath}${routePrefix}${normalizedPath}`;
         baseSpec.paths[fullPath] = methods;
       }
     }

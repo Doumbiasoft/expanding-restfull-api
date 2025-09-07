@@ -182,6 +182,9 @@ export function ValidateQuery(options: ValidationOptions) {
     const originalMethod = descriptor.value;
     const middleware = createValidationMiddleware("query", options);
 
+    // Store query validation metadata for OpenAPI generation
+    Reflect.defineMetadata("validation:query", options, target, propertyKey);
+
     if (Array.isArray(originalMethod)) {
       // Method already has middlewares, insert validation before the last one
       const lastHandler = originalMethod[originalMethod.length - 1];

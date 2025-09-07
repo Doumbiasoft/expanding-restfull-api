@@ -8,6 +8,7 @@ import { HttpStatus } from "../types/httpStatus";
 import {
   ValidateBody,
   ValidateParams,
+  ValidateQuery,
 } from "../decorators/validation.decorator";
 import {
   createPost,
@@ -21,14 +22,33 @@ import { findUserById } from "../services/user.service";
 @Controller("PostController")
 class PostController {
   @Get("/", {
-    summary: "Get all posts",
-    description: "Retrieve a list of all post in the system",
+    summary: "Get all posts or a user's posts",
+    description:
+      "Retrieve a list of all posts or a user posts by querying in the system",
     tags: ["Posts"],
+  })
+  @ValidateQuery({
+    rules: [
+      {
+        field: "userId",
+        required: false,
+        type: "string",
+      },
+    ],
   })
   @LogRequest()
   async getPosts(req: Request, res: Response) {
-    const posts: Posts = findAllPosts();
-    return sendResponse(res, posts);
+    let posts: Posts = [];
+    if (req.query.userId) {
+      const userId = Number(req.query.userId);
+      const user = findUserById(userId);
+      if (!user) return sendError(res, "User not found", HttpStatus.NOT_FOUND);
+      posts = findAllPosts(userId);
+      return sendResponse(res, posts);
+    } else {
+      posts = findAllPosts();
+      return sendResponse(res, posts);
+    }
   }
   @Post("/", {
     summary: "Create a post",

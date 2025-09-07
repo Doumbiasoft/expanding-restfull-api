@@ -147,7 +147,12 @@ export class ControllerRegistryManager {
       if (!controller) continue;
 
       for (const route of controller.routes) {
-        const pathKey = route.path.replace(/:([^/]+)/g, "{$1}");
+        // Normalize path to avoid trailing slashes and convert params
+        let pathKey = route.path.replace(/:([^/]+)/g, "{$1}");
+        // Don't normalize if it already has parameters or is not just "/"
+        if (pathKey === "/") {
+          pathKey = "";
+        }
 
         if (!paths[pathKey]) {
           paths[pathKey] = {};
@@ -261,15 +266,52 @@ export class ControllerRegistryManager {
 
         // Add path parameters
         const pathParams = route.path.match(/:([^/]+)/g);
+        const parameters: any[] = [];
+        
         if (pathParams) {
-          paths[pathKey][route.method].parameters = pathParams.map(
+          parameters.push(...pathParams.map(
             (param: string) => ({
               name: param.substring(1),
               in: "path",
               required: true,
               schema: { type: "string" },
             })
-          );
+          ));
+        }
+
+        // Add query parameters from validation metadata
+        const controller = this.getController(name);
+        if (controller) {
+          // Find the method that matches this route
+          let methodName: string | undefined;
+          for (const [name, method] of controller.methods) {
+            if (method.routeInfo?.method === route.method && method.routeInfo?.path === route.path) {
+              methodName = name;
+              break;
+            }
+          }
+          
+          if (methodName) {
+            const queryValidation = Reflect.getMetadata(
+              "validation:query", 
+              controller.target.prototype, 
+              methodName
+            );
+            
+            if (queryValidation && queryValidation.rules) {
+              parameters.push(...queryValidation.rules.map((rule: any) => ({
+                name: rule.field,
+                in: "query",
+                required: rule.required || false,
+                schema: this.getSchemaFromValidationRule(rule),
+                description: this.getDescriptionFromValidationRule(rule)
+              })));
+            }
+          }
+        }
+
+        if (parameters.length > 0) {
+          paths[pathKey][route.method].parameters = parameters;
         }
       }
     }
@@ -320,6 +362,51 @@ export class ControllerRegistryManager {
       totalRoutes,
       controllerBreakdown,
     };
+  }
+
+  private static getSchemaFromValidationRule(rule: any): any {
+    const schema: any = {};
+    
+    // Map validation type to OpenAPI type
+    switch (rule.type) {
+      case "string":
+        schema.type = "string";
+        if (rule.minLength !== undefined) schema.minLength = rule.minLength;
+        if (rule.maxLength !== undefined) schema.maxLength = rule.maxLength;
+        if (rule.pattern) schema.pattern = rule.pattern.source;
+        break;
+      case "number":
+        schema.type = "number";
+        if (rule.min !== undefined) schema.minimum = rule.min;
+        if (rule.max !== undefined) schema.maximum = rule.max;
+        break;
+      case "boolean":
+        schema.type = "boolean";
+        break;
+      case "array":
+        schema.type = "array";
+        break;
+      case "object":
+        schema.type = "object";
+        break;
+      default:
+        schema.type = "string";
+    }
+    
+    return schema;
+  }
+
+  private static getDescriptionFromValidationRule(rule: any): string {
+    const parts: string[] = [];
+    
+    if (rule.required) parts.push("Required");
+    if (rule.type) parts.push(`Type: ${rule.type}`);
+    if (rule.minLength !== undefined) parts.push(`Min length: ${rule.minLength}`);
+    if (rule.maxLength !== undefined) parts.push(`Max length: ${rule.maxLength}`);
+    if (rule.min !== undefined) parts.push(`Minimum: ${rule.min}`);
+    if (rule.max !== undefined) parts.push(`Maximum: ${rule.max}`);
+    
+    return parts.length > 0 ? parts.join(", ") : `Query parameter: ${rule.field}`;
   }
 
   static printRegistryInfo(): void {

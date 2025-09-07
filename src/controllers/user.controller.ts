@@ -18,6 +18,7 @@ import {
   updateUserById,
   deleteUserById,
 } from "../services/user.service";
+import { findAllPosts } from "../services/post.service";
 
 @Controller("UserController")
 class UserController {
@@ -104,6 +105,31 @@ class UserController {
     if (!user) return sendError(res, "User not found", HttpStatus.NOT_FOUND);
     return sendResponse(res, user);
   }
+
+  @Get("/:id/posts", {
+    summary: "Get a user's posts",
+    description:
+      "Retrieve all posts for a specific user using parameters in the system",
+    tags: ["Users"],
+  })
+  @ValidateParams({
+    rules: [
+      {
+        field: "id",
+        required: true,
+        type: "string",
+      },
+    ],
+  })
+  @LogRequest()
+  async getUserPosts(req: Request, res: Response) {
+    const userId = Number(req.params.id);
+    const user = findUserById(userId);
+    if (!user) return sendError(res, "User not found", HttpStatus.NOT_FOUND);
+    const posts = findAllPosts(userId);
+    return sendResponse(res, posts);
+  }
+
   @Patch("/:id", {
     summary: "Update a user",
     description: "Update a specific user in the system",
@@ -211,6 +237,7 @@ class UserController {
 const userController = new UserController();
 export const getUsers = userController.getUsers;
 export const getUserById = userController.getUserById;
+export const getUserPosts = userController.getUserPosts;
 export const addUser = userController.addUser;
 export const updateUser = userController.updateUser;
 export const deleteUser = userController.deleteUser;

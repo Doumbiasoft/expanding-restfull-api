@@ -1,16 +1,17 @@
 import * as db from "../config/database";
 
-export const findAllComments = (userId?: number, postId?: number) => {
-  if (userId && postId) {
+export const findAllComments = (data: { userId?: number; postId?: number }) => {
+  if (data.userId && data.postId) {
     return db.comments.filter(
-      (comment) => comment.postId === postId && comment.userId === userId
+      (comment) =>
+        comment.postId === data.postId && comment.userId === data.userId
     );
   }
-  if (userId) {
-    return db.comments.filter((comment) => comment.userId === userId);
+  if (data.userId) {
+    return db.comments.filter((comment) => comment.userId === data.userId);
   }
-  if (postId) {
-    return db.comments.filter((comment) => comment.postId === postId);
+  if (data.postId) {
+    return db.comments.filter((comment) => comment.postId === data.postId);
   }
   return db.comments;
 };

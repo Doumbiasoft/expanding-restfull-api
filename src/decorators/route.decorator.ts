@@ -203,7 +203,9 @@ export function generateOpenAPISpec(
   const paths: any = {};
 
   for (const route of controller.routes) {
-    const fullPath = (basePath + route.path).replace(/:([^/]+)/g, "{$1}");
+    // Normalize path to avoid trailing slashes when route path is "/"
+    const normalizedPath = route.path === "/" ? "" : route.path;
+    const fullPath = (basePath + normalizedPath).replace(/:([^/]+)/g, "{$1}");
 
     if (!paths[fullPath]) {
       paths[fullPath] = {};
