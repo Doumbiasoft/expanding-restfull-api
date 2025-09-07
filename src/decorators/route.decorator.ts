@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { Router } from "express";
 import { controllerRegistry, RouteMetadata } from "./controller.decorator";
 
