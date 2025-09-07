@@ -34,6 +34,18 @@ class PostController {
     summary: "Create a post",
     description: "Create a new post in the system",
     tags: ["Posts"],
+    requestExamples: [
+      {
+        summary: "Create blog post",
+        description: "Example request to create a new blog post",
+        value: {
+          userId: 1,
+          title: "My First Blog Post",
+          content:
+            "This is the content of my first blog post. It contains interesting information about my experiences.",
+        },
+      },
+    ],
   })
   @ValidateBody({
     rules: [
@@ -66,6 +78,32 @@ class PostController {
     summary: "Get a post",
     description: "Retrieve a specific post by id in the system",
     tags: ["Posts"],
+    responseExamples: [
+      {
+        status: 200,
+        summary: "Successfully retrieved post",
+        description: "Single post retrieved by ID",
+        value: {
+          success: true,
+          data: {
+            id: 1,
+            userId: 1,
+            title: "est et quae odit qui non",
+            content:
+              "similique esse doloribus nihil accusamus\nomnis dolorem fuga consequuntur reprehenderit fugit recusandae temporibus\nperspiciatis cum ut laudantium\nomnis aut molestiae vel vero",
+          },
+        },
+      },
+      {
+        status: 404,
+        summary: "Post not found",
+        description: "When the requested post does not exist",
+        value: {
+          success: false,
+          message: "Post not found",
+        },
+      },
+    ],
   })
   @ValidateParams({
     rules: [
@@ -87,6 +125,16 @@ class PostController {
     summary: "Update a post",
     description: "Update a specific post in the system",
     tags: ["Posts"],
+    requestExamples: [
+      {
+        summary: "Update post title",
+        description: "Example request to update only the post title",
+        value: {
+          id: 1,
+          title: "Updated Blog Post Title",
+        },
+      },
+    ],
   })
   @ValidateParams({
     rules: [

@@ -153,7 +153,7 @@ export class ControllerRegistryManager {
           paths[pathKey] = {};
         }
 
-        paths[pathKey][route.method] = {
+        const operation: any = {
           summary:
             route.summary || `${route.method.toUpperCase()} ${route.path}`,
           description: route.description,
@@ -175,6 +175,89 @@ export class ControllerRegistryManager {
             500: { description: "Internal Server Error" },
           },
         };
+
+        // Add request body examples if they exist
+        if (
+          route.requestExamples &&
+          route.requestExamples.length > 0 &&
+          (route.method === "post" ||
+            route.method === "put" ||
+            route.method === "patch")
+        ) {
+          operation.requestBody = {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { type: "object" },
+                examples: {},
+              },
+            },
+          };
+
+          route.requestExamples.forEach((example, index) => {
+            const exampleKey = example.summary || `example${index + 1}`;
+            operation.requestBody.content["application/json"].examples[
+              exampleKey
+            ] = {
+              summary: example.summary,
+              description: example.description,
+              value: example.value,
+            };
+          });
+        }
+
+        // Add response examples if they exist
+        if (route.responseExamples && route.responseExamples.length > 0) {
+          route.responseExamples.forEach((example) => {
+            const statusCode = example.status.toString();
+            if (!operation.responses[statusCode]) {
+              operation.responses[statusCode] = {
+                description: example.description || "Response",
+                content: {
+                  "application/json": {
+                    schema: { type: "object" },
+                    examples: {},
+                  },
+                },
+              };
+            } else {
+              // Ensure content structure exists
+              if (!operation.responses[statusCode].content) {
+                operation.responses[statusCode].content = {
+                  "application/json": {
+                    schema: { type: "object" },
+                    examples: {},
+                  },
+                };
+              } else if (
+                !operation.responses[statusCode].content["application/json"]
+              ) {
+                operation.responses[statusCode].content["application/json"] = {
+                  schema: { type: "object" },
+                  examples: {},
+                };
+              } else if (
+                !operation.responses[statusCode].content["application/json"]
+                  .examples
+              ) {
+                operation.responses[statusCode].content[
+                  "application/json"
+                ].examples = {};
+              }
+            }
+
+            const exampleKey = example.summary || `example_${statusCode}`;
+            operation.responses[statusCode].content[
+              "application/json"
+            ].examples[exampleKey] = {
+              summary: example.summary,
+              description: example.description,
+              value: example.value,
+            };
+          });
+        }
+
+        paths[pathKey][route.method] = operation;
 
         // Add path parameters
         const pathParams = route.path.match(/:([^/]+)/g);
