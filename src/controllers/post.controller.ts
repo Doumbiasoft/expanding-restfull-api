@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Posts } from "../config/database";
+import { Comments, Posts } from "../config/database";
 import { sendResponse, sendError } from "../utils/response";
 import { Controller } from "../decorators/controller.decorator";
 import { Get, Post, Delete, Patch } from "../decorators/route.decorator";
@@ -18,6 +18,7 @@ import {
   updatePostById,
 } from "../services/post.service";
 import { findUserById } from "../services/user.service";
+import { findAllComments } from "../services/comment.service";
 
 @Controller("PostController")
 class PostController {
@@ -115,6 +116,48 @@ class PostController {
     if (!post) return sendError(res, "Post not found", HttpStatus.NOT_FOUND);
     return sendResponse(res, post);
   }
+
+  @Get("/:id/comments", {
+    summary: "Get post's comments",
+    description:
+      "Retrieve a list of all comments for a post and for a specific user in the system",
+    tags: ["Posts"],
+  })
+  @ValidateParams({
+    rules: [
+      {
+        field: "id",
+        required: false,
+        type: "string",
+      },
+    ],
+  })
+  @ValidateQuery({
+    rules: [
+      {
+        field: "userId",
+        required: false,
+        type: "string",
+      },
+    ],
+  })
+  @LogRequest()
+  async getPostComments(req: Request, res: Response) {
+    let comments: Comments = [];
+    const postId = Number(req.params.id);
+    const post = findPostById(postId);
+    if (!post) return sendError(res, "Post not found", HttpStatus.NOT_FOUND);
+    if (req.query.userId) {
+      const userId = Number(req.query.userId);
+      const user = findUserById(userId);
+      if (!user) return sendError(res, "User not found", HttpStatus.NOT_FOUND);
+      comments = findAllComments({ userId, postId });
+      return sendResponse(res, comments);
+    }
+    comments = findAllComments({ postId });
+    return sendResponse(res, comments);
+  }
+
   @Patch("/:id", {
     summary: "Update a post",
     description: "Update a specific post in the system",
@@ -199,5 +242,6 @@ export const addPost = postController.addPost;
 export const getPostById = postController.getPostById;
 export const updatePost = postController.updatePost;
 export const deletePost = postController.deletePost;
+export const getPostComments = postController.getPostComments;
 
 export { PostController };

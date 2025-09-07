@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Users } from "../config/database";
+import { Comments, Users } from "../config/database";
 import { sendResponse, sendError } from "../utils/response";
 import { Controller } from "../decorators/controller.decorator";
 import { Get, Post, Delete, Patch } from "../decorators/route.decorator";
@@ -8,6 +8,7 @@ import { HttpStatus } from "../types/httpStatus";
 import {
   ValidateBody,
   ValidateParams,
+  ValidateQuery,
   ValidationPatterns,
 } from "../decorators/validation.decorator";
 import {
@@ -18,7 +19,8 @@ import {
   updateUserById,
   deleteUserById,
 } from "../services/user.service";
-import { findAllPosts } from "../services/post.service";
+import { findAllPosts, findPostById } from "../services/post.service";
+import { findAllComments } from "../services/comment.service";
 
 @Controller("UserController")
 class UserController {
@@ -130,6 +132,48 @@ class UserController {
     return sendResponse(res, posts);
   }
 
+  @Get("/:id/comments", {
+    summary: "Get user's comments",
+    description:
+      "Retrieve a list of all comments for a user and with a specific post in the system",
+    tags: ["Users"],
+  })
+  @ValidateParams({
+    rules: [
+      {
+        field: "id",
+        required: false,
+        type: "string",
+      },
+    ],
+  })
+  @ValidateQuery({
+    rules: [
+      {
+        field: "postId",
+        required: false,
+        type: "string",
+      },
+    ],
+  })
+  @LogRequest()
+  async getUserComments(req: Request, res: Response) {
+    let comments: Comments = [];
+    const userId = Number(req.params.id);
+    const user = findUserById(userId);
+    if (!user) return sendError(res, "User not found", HttpStatus.NOT_FOUND);
+
+    if (req.query.postId) {
+      const postId = Number(req.query.postId);
+      const post = findPostById(postId);
+      if (!post) return sendError(res, "Post not found", HttpStatus.NOT_FOUND);
+      comments = findAllComments({ userId, postId });
+      return sendResponse(res, comments);
+    }
+    comments = findAllComments({ userId });
+    return sendResponse(res, comments);
+  }
+
   @Patch("/:id", {
     summary: "Update a user",
     description: "Update a specific user in the system",
@@ -238,6 +282,7 @@ const userController = new UserController();
 export const getUsers = userController.getUsers;
 export const getUserById = userController.getUserById;
 export const getUserPosts = userController.getUserPosts;
+export const getUserComments = userController.getUserComments;
 export const addUser = userController.addUser;
 export const updateUser = userController.updateUser;
 export const deleteUser = userController.deleteUser;

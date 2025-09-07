@@ -3,6 +3,7 @@ import {
   addUser,
   deleteUser,
   getUserById,
+  getUserComments,
   getUserPosts,
   getUsers,
   updateUser,
@@ -14,6 +15,7 @@ router.get("/", getUsers);
 router.post("/", addUser);
 router.get("/:id", getUserById);
 router.get("/:id/posts", getUserPosts);
+router.get("/:id/comments", getUserComments);
 router.patch("/:id", updateUser);
 router.delete("/:id", deleteUser);
 
