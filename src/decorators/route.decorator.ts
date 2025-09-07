@@ -1,11 +1,14 @@
 import { Router } from "express";
 import { controllerRegistry, RouteMetadata } from "./controller.decorator";
+import { RequestExample, ResponseExample } from "./example.decorator";
 
 export interface RouteOptions {
   path?: string;
   summary?: string;
   description?: string;
   tags?: string[];
+  requestExamples?: RequestExample[];
+  responseExamples?: ResponseExample[];
 }
 
 // HTTP Method decorators
@@ -26,6 +29,8 @@ export function Get(
         summary: options.summary,
         description: options.description,
         tags: options.tags,
+        requestExamples: options.requestExamples,
+        responseExamples: options.responseExamples,
       },
       target,
       propertyKey
@@ -51,6 +56,8 @@ export function Post(
         summary: options.summary,
         description: options.description,
         tags: options.tags,
+        requestExamples: options.requestExamples,
+        responseExamples: options.responseExamples,
       },
       target,
       propertyKey
@@ -76,6 +83,8 @@ export function Put(
         summary: options.summary,
         description: options.description,
         tags: options.tags,
+        requestExamples: options.requestExamples,
+        responseExamples: options.responseExamples,
       },
       target,
       propertyKey
@@ -101,6 +110,8 @@ export function Patch(
         summary: options.summary,
         description: options.description,
         tags: options.tags,
+        requestExamples: options.requestExamples,
+        responseExamples: options.responseExamples,
       },
       target,
       propertyKey
@@ -126,6 +137,8 @@ export function Delete(
         summary: options.summary,
         description: options.description,
         tags: options.tags,
+        requestExamples: options.requestExamples,
+        responseExamples: options.responseExamples,
       },
       target,
       propertyKey

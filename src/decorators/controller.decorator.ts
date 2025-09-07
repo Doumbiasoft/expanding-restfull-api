@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { catchAsync } from "../utils/catchAsync";
+import { RequestExample, ResponseExample } from "./example.decorator";
 
 export interface ControllerMetadata {
   target: any;
@@ -24,6 +25,8 @@ export interface RouteMetadata {
   summary?: string;
   description?: string;
   tags?: string[];
+  requestExamples?: RequestExample[];
+  responseExamples?: ResponseExample[];
 }
 
 export interface RouteInfo {
@@ -32,6 +35,8 @@ export interface RouteInfo {
   summary?: string;
   description?: string;
   tags?: string[];
+  requestExamples?: RequestExample[];
+  responseExamples?: ResponseExample[];
 }
 
 class ControllerRegistry {
@@ -123,6 +128,8 @@ export function Controller(name?: string) {
           summary: routeInfo.summary,
           description: routeInfo.description,
           tags: routeInfo.tags,
+          requestExamples: routeInfo.requestExamples,
+          responseExamples: routeInfo.responseExamples,
         });
       }
     }

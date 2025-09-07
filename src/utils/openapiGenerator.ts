@@ -16,6 +16,100 @@ export class OpenAPIGenerator {
   };
 
   /**
+   * Automatically discover and load controllers from the controllers directory
+   */
+  static async autoDiscoverControllers(
+    controllersDir: string
+  ): Promise<RouteMapping[]> {
+    const mappings: RouteMapping[] = [];
+
+    try {
+      // Check if directory exists
+      if (!fs.existsSync(controllersDir)) {
+        console.warn(`Controllers directory not found: ${controllersDir}`);
+        return mappings;
+      }
+
+      // Read all files in the controllers directory
+      const files = fs.readdirSync(controllersDir);
+
+      // Filter for controller files (*.controller.js or *.controller.ts)
+      const controllerFiles = files.filter(
+        (file) =>
+          file.endsWith(".controller.js") || file.endsWith(".controller.ts")
+      );
+
+      for (const file of controllerFiles) {
+        const filePath = path.join(controllersDir, file);
+
+        // Extract controller name from filename
+        // e.g., "user.controller.js" -> "UserController"
+        const baseName = path.basename(file, path.extname(file));
+        const entityName = baseName.replace(".controller", "");
+        const controllerName =
+          entityName.charAt(0).toUpperCase() +
+          entityName.slice(1) +
+          "Controller";
+
+        // Generate route prefix from entity name
+        // e.g., "user" -> "/users", "post" -> "/posts"
+        const routePrefix = `/${entityName}${
+          entityName.endsWith("s") ? "" : "s"
+        }`;
+
+        mappings.push({
+          controllerName,
+          routePrefix,
+        });
+
+        // Dynamically import the controller to register it
+        try {
+          await import(filePath);
+          console.log(
+            `✅ Dynamically loaded controller: ${controllerName} -> ${routePrefix}`
+          );
+        } catch (error) {
+          console.warn(
+            `⚠️  Failed to load controller ${controllerName}:`,
+            error
+          );
+        }
+      }
+
+      return mappings;
+    } catch (error) {
+      console.error("Error discovering controllers:", error);
+      return mappings;
+    }
+  }
+
+  /**
+   * Generate route mappings from already registered controllers
+   */
+  static generateDynamicRouteMappings(): RouteMapping[] {
+    const registeredControllers = ControllerRegistryManager.getAllControllers();
+    const mappings: RouteMapping[] = [];
+
+    for (const [controllerName] of registeredControllers) {
+      // Extract entity name from controller name
+      // e.g., "UserController" -> "user"
+      const entityName = controllerName.replace("Controller", "").toLowerCase();
+
+      // Generate route prefix
+      const routePrefix = `/${entityName}${
+        entityName.endsWith("s") ? "" : "s"
+      }`;
+
+      mappings.push({
+        controllerName,
+        routePrefix,
+      });
+    }
+
+    return mappings;
+  }
+
+  /**
    * Automatically discover route mappings by scanning the routes directory
    */
   static autoDiscoverRouteMappings(routesDir: string): RouteMapping[] {
@@ -73,15 +167,25 @@ export class OpenAPIGenerator {
   /**
    * Initialize with auto-discovered or manual route mappings
    */
-  static initialize(routesDir?: string, customMappings?: RouteMapping[]) {
+  static async initialize(
+    routesDir?: string,
+    customMappings?: RouteMapping[],
+    controllersDir?: string
+  ) {
     if (customMappings) {
       this.routeMappings = customMappings;
+    } else if (controllersDir) {
+      // Use dynamic controller discovery
+      const dynamicMappings = await this.autoDiscoverControllers(
+        controllersDir
+      );
+      this.routeMappings = dynamicMappings;
     } else if (routesDir) {
       this.routeMappings = this.autoDiscoverRouteMappings(routesDir);
     } else {
-      // Fallback to scanning default routes directory
-      const defaultRoutesDir = path.join(process.cwd(), "src", "routes");
-      this.routeMappings = this.autoDiscoverRouteMappings(defaultRoutesDir);
+      // Fallback to dynamic discovery from registered controllers
+      const dynamicMappings = this.generateDynamicRouteMappings();
+      this.routeMappings = dynamicMappings;
     }
   }
 
@@ -160,7 +264,7 @@ export class OpenAPIGenerator {
   /**
    * Auto-setup OpenAPI endpoints on Express app
    */
-  static setupEndpoints(
+  static async setupEndpoints(
     app: any,
     options: {
       specPath?: string;
@@ -168,6 +272,7 @@ export class OpenAPIGenerator {
       swaggerPath?: string;
       basePath?: string;
       routesDir?: string;
+      controllersDir?: string;
       customMappings?: RouteMapping[];
       info?: Partial<typeof OpenAPIGenerator.baseInfo>;
       enableSwagger?: boolean;
@@ -180,6 +285,7 @@ export class OpenAPIGenerator {
       swaggerPath = "/swagger",
       basePath = "/v1",
       routesDir,
+      controllersDir,
       customMappings,
       info,
       enableSwagger = true,
@@ -187,7 +293,7 @@ export class OpenAPIGenerator {
     } = options;
 
     // Initialize route mappings
-    this.initialize(routesDir, customMappings);
+    await this.initialize(routesDir, customMappings, controllersDir);
 
     // Set custom info if provided
     if (info) {

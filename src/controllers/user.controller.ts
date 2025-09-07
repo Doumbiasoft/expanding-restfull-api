@@ -35,6 +35,26 @@ class UserController {
     summary: "Create a user",
     description: "Create a new user in the system",
     tags: ["Users"],
+    requestExamples: [
+      {
+        summary: "Create regular user",
+        description: "Example request to create a new regular user",
+        value: {
+          name: "John Doe",
+          username: "johndoe",
+          email: "john.doe@example.com",
+        },
+      },
+      {
+        summary: "Create developer user",
+        description: "Example request to create a developer user",
+        value: {
+          name: "Jane Smith",
+          username: "janedev",
+          email: "jane.smith@devcompany.com",
+        },
+      },
+    ],
   })
   @ValidateBody({
     rules: [
@@ -62,7 +82,7 @@ class UserController {
   })
   @LogRequest()
   async addUser(req: Request, res: Response) {
-    const exitUser = findUser(req.body.username);
+    const exitUser = findUser({ username: req.body.username });
     if (exitUser)
       return sendError(
         res,
@@ -97,6 +117,34 @@ class UserController {
     summary: "Update a user",
     description: "Update a specific user in the system",
     tags: ["Users"],
+    requestExamples: [
+      {
+        summary: "Update user name",
+        description: "Example request to update only the user's name",
+        value: {
+          id: 1,
+          name: "Carey Williams",
+        },
+      },
+      {
+        summary: "Update user email",
+        description: "Example request to update only the user's email",
+        value: {
+          id: 1,
+          email: "carey.williams@newdomain.com",
+        },
+      },
+      {
+        summary: "Update multiple fields",
+        description: "Example request to update name, username and email",
+        value: {
+          id: 1,
+          name: "Carey Williams",
+          username: "careyW",
+          email: "carey.williams@newdomain.com",
+        },
+      },
+    ],
   })
   @ValidateParams({
     rules: [

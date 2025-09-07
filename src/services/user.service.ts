@@ -3,18 +3,24 @@ import * as db from "../config/database";
 export const findAllUsers = () => {
   return db.users;
 };
-export const findUser = (username?: string, email?: string) => {
-  if (username) {
-    return db.users.find((user) => {
-      user.username.trim().toLowerCase() === username.trim().toLowerCase();
-    });
+export const findUser = (data: { username?: string; email?: string }) => {
+  let result = null;
+  if (data.username) {
+    result = db.users.find(
+      (user) =>
+        user.username.toString().trim().toLowerCase() ===
+        data.username?.toString().trim().toLowerCase()
+    );
+    return result;
   }
-  if (email) {
-    return db.users.find((user) => {
-      user.email.trim().toLowerCase() === email.trim().toLowerCase();
-    });
+  if (data.email) {
+    result = db.users.find(
+      (user) =>
+        user.email.trim().toLowerCase() === data.email?.trim().toLowerCase()
+    );
+    return result;
   }
-  return null;
+  return result;
 };
 export const findUserById = (userId: number) => {
   return db.users.find((user) => user.id === userId);
