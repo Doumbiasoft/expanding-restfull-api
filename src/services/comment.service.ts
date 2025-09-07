@@ -1,16 +1,19 @@
 import * as db from "../config/database";
 
-export const findAllComments = (data: { userId?: number; postId?: number }) => {
-  if (data.userId && data.postId) {
+export const findAllComments = (data?: {
+  userId?: number;
+  postId?: number;
+}) => {
+  if (data?.userId && data.postId) {
     return db.comments.filter(
       (comment) =>
         comment.postId === data.postId && comment.userId === data.userId
     );
   }
-  if (data.userId) {
+  if (data?.userId) {
     return db.comments.filter((comment) => comment.userId === data.userId);
   }
-  if (data.postId) {
+  if (data?.postId) {
     return db.comments.filter((comment) => comment.postId === data.postId);
   }
   return db.comments;
@@ -40,13 +43,13 @@ export const updateCommentById = (
   const commentToUpdateIndex = db.comments.findIndex(
     (comment) => comment.id === commentId
   );
-  const updatedPost: Partial<db.Comment> = {
+  const updatedComment: Partial<db.Comment> = {
     id: commentToUpdate?.id,
     userId: commentToUpdate?.userId,
     postId: commentToUpdate?.postId,
     body: comment.body,
   };
-  db.comments.splice(commentToUpdateIndex, 1, updatedPost as db.Comment);
+  db.comments.splice(commentToUpdateIndex, 1, updatedComment as db.Comment);
   return db.comments[commentToUpdateIndex];
 };
 export const deleteCommentById = (commentId: number) => {

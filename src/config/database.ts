@@ -108,4 +108,113 @@ export const posts: Posts = [
   },
 ];
 
-export const comments: Comments = [];
+export const comments: Comments = [
+  {
+    id: 1,
+    userId: 2,
+    postId: 1,
+    body: "Great insights, Carey! Really enjoyed reading this.",
+  },
+  {
+    id: 2,
+    userId: 3,
+    postId: 1,
+    body: "Interesting perspective, I hadn't thought of it this way.",
+  },
+  {
+    id: 3,
+    userId: 1,
+    postId: 2,
+    body: "Thanks for the support on this one, I put a lot of thought into it.",
+  },
+  {
+    id: 4,
+    userId: 3,
+    postId: 2,
+    body: "Well written, I agree with most of your points.",
+  },
+  {
+    id: 5,
+    userId: 1,
+    postId: 3,
+    body: "Glad you all liked this piece, I had fun writing it!",
+  },
+  {
+    id: 6,
+    userId: 2,
+    postId: 3,
+    body: "Nice explanation, Carey. Clear and concise.",
+  },
+  {
+    id: 7,
+    userId: 1,
+    postId: 4,
+    body: "This was a really eye-opening post, thanks Mikoto!",
+  },
+  {
+    id: 8,
+    userId: 3,
+    postId: 4,
+    body: "I think there's even more to explore here, good start!",
+  },
+  {
+    id: 9,
+    userId: 1,
+    postId: 5,
+    body: "Very thoughtful, I liked the examples you included.",
+  },
+  {
+    id: 10,
+    userId: 3,
+    postId: 5,
+    body: "Solid post, I learned a couple of new things.",
+  },
+  {
+    id: 11,
+    userId: 1,
+    postId: 6,
+    body: "Good breakdown, Mikoto! Keep up the great work.",
+  },
+  {
+    id: 12,
+    userId: 3,
+    postId: 6,
+    body: "I appreciate how you structured this, very readable.",
+  },
+  {
+    id: 13,
+    userId: 1,
+    postId: 7,
+    body: "Strong points, Ronald. Definitely resonated with me.",
+  },
+  {
+    id: 14,
+    userId: 2,
+    postId: 7,
+    body: "This is helpful, I'll definitely apply some of these ideas.",
+  },
+  {
+    id: 15,
+    userId: 1,
+    postId: 8,
+    body: "Great write-up, I like the examples you used.",
+  },
+  {
+    id: 16,
+    userId: 2,
+    postId: 8,
+    body: "Nicely written, Ronald. Easy to follow and engaging.",
+  },
+  {
+    id: 17,
+    userId: 1,
+    postId: 9,
+    body: "Powerful post, thanks for sharing your thoughts.",
+  },
+  {
+    id: 18,
+    userId: 2,
+    postId: 9,
+    body: "Great finish to this series of posts. Very inspiring.",
+  },
+];

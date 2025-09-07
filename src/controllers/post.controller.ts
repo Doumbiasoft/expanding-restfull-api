@@ -98,32 +98,6 @@ class PostController {
     summary: "Get a post",
     description: "Retrieve a specific post by id in the system",
     tags: ["Posts"],
-    responseExamples: [
-      {
-        status: 200,
-        summary: "Successfully retrieved post",
-        description: "Single post retrieved by ID",
-        value: {
-          success: true,
-          data: {
-            id: 1,
-            userId: 1,
-            title: "est et quae odit qui non",
-            content:
-              "similique esse doloribus nihil accusamus\nomnis dolorem fuga consequuntur reprehenderit fugit recusandae temporibus\nperspiciatis cum ut laudantium\nomnis aut molestiae vel vero",
-          },
-        },
-      },
-      {
-        status: 404,
-        summary: "Post not found",
-        description: "When the requested post does not exist",
-        value: {
-          success: false,
-          message: "Post not found",
-        },
-      },
-    ],
   })
   @ValidateParams({
     rules: [
