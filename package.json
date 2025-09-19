@@ -2,11 +2,12 @@
   "name": "expanding-restful-api",
   "version": "1.0.0",
   "description": "",
-  "main": "server.ts",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
+    "serve": "npm run build && npm run start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -23,9 +24,7 @@
     "morgan": "^1.10.1",
     "reflect-metadata": "^0.2.2",
     "swagger-ui-express": "^5.0.1",
-    "winston": "^3.17.0"
-  },
-  "devDependencies": {
+    "winston": "^3.17.0",
     "@types/compression": "^1.8.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
@@ -33,7 +32,9 @@
     "@types/node": "^24.3.1",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/winston": "^2.4.4",
-    "tsx": "^4.20.5",
     "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.5"
   }
 }
